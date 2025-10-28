@@ -1,17 +1,65 @@
-    // === FUNGSI PENYEDERHANAAN (SOP) ===
-        function simplifyToSOP(vars, table) {
-        const terms = [];
-        for (let i = 0; i < table.length; i++) {
-            if (table[i].Y === 1) {
+function simplifyToSOP(vars, table) {
+    const terms = [];
+    for (let i = 0; i < table.length; i++) {
+        if (table[i].Y === 1 || table[i].Y === 'd') { // ✅ don’t-care ikut
             let term = "";
             for (let j = 0; j < vars.length; j++) {
                 term += table[i][vars[j]] ? vars[j] : vars[j] + "'";
             }
             terms.push(term);
+        }
+    }
+    return terms.length ? terms.join(" + ") : "0";
+}
+
+
+    // ===== FUNGSI PENYEDERHANAAN POS =====
+    function simplifyToPOS(vars, table) {
+        const terms = [];
+        for (let i = 0; i < table.length; i++) {
+            if (table[i].Y === 0) { // gunakan baris Y=0
+                const termParts = [];
+                for (let j = 0; j < vars.length; j++) {
+                    termParts.push(table[i][vars[j]] ? vars[j] + "'" : vars[j]); // negasi lawan SOP
+                }
+                terms.push("(" + termParts.join(" + ") + ")");
             }
         }
-        return terms.length ? terms.join(" + ") : "0";
+        return terms.length ? terms.join(" * ") : "1";
+    }
+
+    const btnSOP = document.getElementById("btn-sop");
+const btnPOS = document.getElementById("btn-pos");
+
+btnSOP.addEventListener("click", () => {
+    const expr = document.querySelector("#expr").value.trim();
+    if (!expr) return;
+    try {
+        const tokens = tokenize(expr);
+        const vars = getVars(tokens);
+        const rpn = toRPN(tokens);
+        const table = makeTable(vars, rpn);
+        const sop = simplifyToSOP(vars, table);
+        document.getElementById("out-simplified").textContent = sop;
+    } catch (e) {
+        console.error(e);
+    }
+});
+
+    btnPOS.addEventListener("click", () => {
+        const expr = document.querySelector("#expr").value.trim();
+        if (!expr) return;
+        try {
+            const tokens = tokenize(expr);
+            const vars = getVars(tokens);
+            const rpn = toRPN(tokens);
+            const table = makeTable(vars, rpn);
+            const pos = simplifyToPOS(vars, table);
+            document.getElementById("out-simplified").textContent = pos;
+        } catch (e) {
+            console.error(e);
         }
+    });
 
         // === TOGGLE THEME (DARK / LIGHT) ===
 const toggle = document.getElementById("themeToggle");
@@ -478,10 +526,11 @@ document.getElementById("exportPrintBtn")?.addEventListener("click", async () =>
         const evalBtn = document.querySelector("#btn-eval");
         if (exprInput && evalBtn) {
         // Listener yang sudah ada untuk evaluasi tabel kebenaran
-    exprInput.addEventListener("input", () => {
+        exprInput.addEventListener("input", () => {
         const expr = exprInput.value.trim();
         if (expr) updateKmapFromExpr(expr);
     });
+
 
 
         // Tambahkan ini agar K-Map juga update otomatis
@@ -491,17 +540,17 @@ document.getElementById("exportPrintBtn")?.addEventListener("click", async () =>
         });
     }
 
-        // === TOMBOL BERSIHKAN ===
-        document.querySelector("#btn-clear").onclick = () => {
-        document.querySelector("#expr").value = "";
-        document.querySelector("#ttarea").innerHTML = "<div class='muted caption'>Siap — masukkan ekspresi dan klik Evaluasi.</div>";
-        document.querySelector("#validation").textContent = "Siap — masukkan ekspresi dan klik Evaluasi.";
-        document.querySelector("#vars-pill").textContent = "Variabel: —";
-        document.querySelector("#minterms-pill").textContent = "Minterm: —";
-        document.querySelector("#simp-pill").textContent = "Sederhana: —";
+    // === TOMBOL BERSIHKAN ===
+    document.querySelector("#btn-clear").onclick = () => {
+    document.querySelector("#expr").value = "";
+    document.querySelector("#ttarea").innerHTML = "<div class='muted caption'>Siap — masukkan ekspresi dan klik Evaluasi.</div>";
+    document.querySelector("#validation").textContent = "Siap — masukkan ekspresi dan klik Evaluasi.";
+    document.querySelector("#vars-pill").textContent = "Variabel: —";
+    document.querySelector("#minterms-pill").textContent = "Minterm: —";
+    document.querySelector("#simp-pill").textContent = "Sederhana: —";
         };
 
-        document.getElementById("exportImgBtn").addEventListener("click", () => {
+    document.getElementById("exportImgBtn").addEventListener("click", () => {
     const target = document.getElementById("kmapWrap");
     html2canvas(target, {
         backgroundColor: "#0b1220",
@@ -531,56 +580,58 @@ document.getElementById("exportPrintBtn")?.addEventListener("click", async () =>
         let variables = ["A", "B", "C", "D"];
 
         function renderKmap() {
-        const varCount = variables.length; // otomatis sesuai variabel ekspresi
-        kvars.textContent = variables.slice(0, varCount).join(", ");
+    const varCount = variables.length;
+    kvars.textContent = variables.join(", ");
 
-        // Tentukan ukuran K-Map (2x2, 2x4, atau 4x4)
-        let rows = 2, cols = 2;
-        if (varCount === 2) { rows = 2; cols = 2; }
-        else if (varCount === 3) { rows = 2; cols = 4; }
-        else if (varCount === 4) { rows = 4; cols = 4; }
+    let rows = 2, cols = 2;
+    if (varCount === 2) { rows = 2; cols = 2; }
+    else if (varCount === 3) { rows = 2; cols = 4; }
+    else if (varCount === 4) { rows = 4; cols = 4; }
 
-        const gray = (n) => {
-            if (n === 2) return [0, 1];
-            if (n === 4) return [0, 1, 3, 2];
-            if (n === 8) return [0, 1, 3, 2, 4, 5, 7, 6]; // untuk kemungkinan nanti
-            return [];
-        };
+    const gray = (n) => {
+        if (n === 2) return [0, 1];
+        if (n === 4) return [0, 1, 3, 2];
+        if (n === 8) return [0, 1, 3, 2, 4, 5, 7, 6];
+        return [];
+    };
+    const rowGray = gray(rows);
+    const colGray = gray(cols);
 
-        const rowGray = gray(rows * 2); // untuk safety, tapi rows <=4
-        const colGray = gray(cols);
-
-        let html = `<table class="kmap-horizontal"><tbody>`;
-        for (let r = 0; r < rows; r++) {
-            html += "<tr>";
-            for (let c = 0; c < cols; c++) {
-                const idx = (r << (Math.log2(cols))) | c; // index K-Map
-                let cls = "kmap-cell";
-                let val = "0";
-                if (minterms.includes(idx)) { cls += " on"; val = "1"; }
-                else if (dontCares.includes(idx)) { cls += " dc"; val = "d"; }
-                html += `<td class="${cls}" data-idx="${idx}">${val}</td>`;
-            }
-            html += "</tr>";
+    let html = `<table class="kmap-horizontal"><tbody>`;
+    for (let r = 0; r < rows; r++) {
+        html += "<tr>";
+        for (let c = 0; c < cols; c++) {
+            const idx = (rowGray[r] << Math.log2(cols)) | colGray[c]; // gunakan Gray code
+            let cls = "kmap-cell";
+            let val = "0";
+            if (minterms.includes(idx)) { cls += " on"; val = "1"; }
+            else if (dontCares.includes(idx)) { cls += " dc"; val = "d"; }
+            html += `<td class="${cls}" data-idx="${idx}">${val}</td>`;
         }
-        html += "</tbody></table>";
-        kmapWrap.innerHTML = html;
-
-        document.querySelectorAll(".kmap-cell").forEach(cell => {
-            cell.addEventListener("click", () => {
-                const idx = parseInt(cell.getAttribute("data-idx"));
-                if (minterms.includes(idx)) {
-                    minterms = minterms.filter(x => x !== idx);
-                    dontCares.push(idx);
-                } else if (dontCares.includes(idx)) {
-                    dontCares = dontCares.filter(x => x !== idx);
-                } else {
-                    minterms.push(idx);
-                }
-                renderKmap();
-            });
-        });
+        html += "</tr>";
     }
+    html += "</tbody></table>";
+    kmapWrap.innerHTML = html;
+
+    // Pasang listener klik
+    document.querySelectorAll(".kmap-cell").forEach(cell => {
+        cell.addEventListener("click", () => {
+            const idx = parseInt(cell.dataset.idx);
+            if (minterms.includes(idx)) {
+                minterms = minterms.filter(x => x !== idx);
+                dontCares.push(idx);
+            } else if (dontCares.includes(idx)) {
+                dontCares = dontCares.filter(x => x !== idx);
+            } else {
+                minterms.push(idx);
+            }
+            renderKmap();
+            simplifyKmap();
+            highlightKmapCells();
+        });
+    });
+}
+
 
         function simplifyKmap() {
         const varCount = variables.length; // otomatis sesuai variabel ekspresi
@@ -609,11 +660,22 @@ document.getElementById("exportPrintBtn")?.addEventListener("click", async () =>
         btnImport.addEventListener("click", () => {
         const val = inputMinterm.value.trim();
         if (!val) return;
+
         const tokens = val.split(",").map(v => v.trim());
+
+        // Pisahkan minterms dan don't care
         minterms = tokens.filter(v => !v.startsWith("d")).map(v => parseInt(v));
         dontCares = tokens.filter(v => v.startsWith("d")).map(v => parseInt(v.substring(1)));
+
+        // Tentukan variabel minimal agar semua minterm/dc muat
+        const maxIndex = Math.max(...minterms.concat(dontCares));
+        let neededVars = 1;
+        while ((1 << neededVars) <= maxIndex) neededVars++;
+        variables = ["A", "B", "C", "D", "E", "F"].slice(0, neededVars); // tambahan variabel jika perlu
+
         renderKmap();
-        });
+    });
+
 
         btnExport.addEventListener("click", () => {
         const dPart = dontCares.length ? ",d" + dontCares.join(",d") : "";
