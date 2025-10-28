@@ -12,7 +12,6 @@ function simplifyToSOP(vars, table) {
     return terms.length ? terms.join(" + ") : "0";
 }
 
-
     // ===== FUNGSI PENYEDERHANAAN POS =====
     function simplifyToPOS(vars, table) {
         const terms = [];
@@ -29,7 +28,26 @@ function simplifyToSOP(vars, table) {
     }
 
     const btnSOP = document.getElementById("btn-sop");
-const btnPOS = document.getElementById("btn-pos");
+    const btnPOS = document.getElementById("btn-pos");
+
+    btnSOP.addEventListener("click", () => {
+    // aktifkan tombol SOP
+    btnSOP.classList.add("active");
+    btnPOS.classList.remove("active");
+
+    // logika SOP kamu bisa tetap di sini
+    console.log("Mode: SOP aktif");
+    });
+
+    btnPOS.addEventListener("click", () => {
+    // aktifkan tombol POS
+    btnPOS.classList.add("active");
+    btnSOP.classList.remove("active");
+
+    // logika POS kamu bisa tetap di sini
+    console.log("Mode: POS aktif");
+    });
+
 
 btnSOP.addEventListener("click", () => {
     const expr = document.querySelector("#expr").value.trim();
@@ -62,11 +80,11 @@ btnSOP.addEventListener("click", () => {
     });
 
         // === TOGGLE THEME (DARK / LIGHT) ===
-const toggle = document.getElementById("themeToggle");
-if (toggle) {
-  // Ambil preferensi dari localStorage
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme === "light") document.documentElement.classList.add("light");
+    const toggle = document.getElementById("themeToggle");
+    if (toggle) {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "light") document.documentElement.classList.add("light");
+
 
   // Update teks tombol sesuai tema awal
   toggle.textContent = document.documentElement.classList.contains("light")
@@ -76,7 +94,8 @@ if (toggle) {
   // Saat diklik, ubah tema
   toggle.addEventListener("click", () => {
     document.documentElement.classList.toggle("light");
-    const isLight = document.documentElement.classList.contains("light");
+    const newTheme = document.documentElement.classList.contains("light") ? "light" : "dark";
+    localStorage.setItem("theme", newTheme);
 
     // Simpan preferensi
     localStorage.setItem("theme", isLight ? "light" : "dark");
@@ -290,7 +309,6 @@ if (toggle) {
         return tokens;
         }
 
-
         // === KONVERSI KE RPN (dengan deteksi kurung tidak seimbang) ===
         function toRPN(tokens) {
         const prec = { NOT: 3, AND: 2, OR: 1, XOR: 1 };
@@ -474,7 +492,6 @@ document.getElementById("exportPrintBtn")?.addEventListener("click", async () =>
   }
 });
 
-
     // === Highlight otomatis pada K-Map ===
     function highlightKmapCells() {
     const kmapWrap = document.querySelector("#kmapWrap");
@@ -531,8 +548,6 @@ document.getElementById("exportPrintBtn")?.addEventListener("click", async () =>
         if (expr) updateKmapFromExpr(expr);
     });
 
-
-
         // Tambahkan ini agar K-Map juga update otomatis
         exprInput.addEventListener("input", (e) => {
             const expr = e.target.value.trim();
@@ -562,8 +577,6 @@ document.getElementById("exportPrintBtn")?.addEventListener("click", async () =>
         a.click();
     });
     });
-
-
 
         // === BAGIAN K-MAP ===
         const inputMinterm = document.getElementById("minterm-io");
@@ -632,7 +645,6 @@ document.getElementById("exportPrintBtn")?.addEventListener("click", async () =>
     });
 }
 
-
         function simplifyKmap() {
         const varCount = variables.length; // otomatis sesuai variabel ekspresi
         const varsUsed = variables.slice(0, varCount);
@@ -649,13 +661,14 @@ document.getElementById("exportPrintBtn")?.addEventListener("click", async () =>
         outSimplified.textContent = simplified;
     }
 
-        function resetKmap() {
-        minterms = [];
-        dontCares = [];
-        inputMinterm.value = "";
-        outSimplified.textContent = "—";
-        kmapWrap.innerHTML = "K-Map akan muncul di sini.";
-        }
+    function resetKmap() {
+    console.log("🔄 Reset K-Map dijalankan");
+    minterms = [];
+    dontCares = [];
+    inputMinterm.value = "";
+    outSimplified.textContent = "—";
+    kmapWrap.innerHTML = "K-Map akan muncul di sini.";
+    }
 
         btnImport.addEventListener("click", () => {
         const val = inputMinterm.value.trim();
@@ -676,6 +689,21 @@ document.getElementById("exportPrintBtn")?.addEventListener("click", async () =>
         renderKmap();
     });
 
+    document.addEventListener("DOMContentLoaded", () => {
+    const btnReset = document.getElementById("btn-reset");
+    if (btnReset) {
+        btnReset.addEventListener("click", () => {
+        console.log("🔄 Reset K-Map dijalankan");
+        minterms = [];
+        dontCares = [];
+        inputMinterm.value = "";
+        outSimplified.textContent = "—";
+        kmapWrap.innerHTML = "K-Map akan muncul di sini.";
+        });
+    } else {
+        console.error("❌ Tombol reset tidak ditemukan di DOM!");
+    }
+    });
 
         btnExport.addEventListener("click", () => {
         const dPart = dontCares.length ? ",d" + dontCares.join(",d") : "";
