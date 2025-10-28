@@ -122,7 +122,7 @@ header.header-wrapper {
   align-items: flex-start;
   justify-content: flex-start;
   margin-bottom: 18px;
-  padding-left: 150px;
+  padding-left: 165px;
 }
 
 header.header-wrapper h1 {
@@ -239,6 +239,93 @@ input:focus, textarea:focus {
 .btn.warn {
   background:linear-gradient(180deg,#ff9c6b,#ff7a4d);
 }
+
+.btn.active {
+  background-color: var(--accent);
+  color: white;
+  font-weight: 600;
+  border-color: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+/* === 🌙 Dark Mode Button Styling (Cyan Edition) === */
+.btn-toggle {
+  border: 2px solid rgba(94, 234, 212, 0.5);
+  background: transparent;
+  color: #5eead4;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+  padding: 6px 18px;
+}
+
+.btn-toggle:hover {
+  background: rgba(45, 212, 191, 0.08);
+  box-shadow: 0 0 10px rgba(94, 234, 212, 0.3);
+}
+
+.btn-toggle.active {
+  background: linear-gradient(135deg, #38bdf8, #2dd4bf);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.5);
+}
+
+/* Tombol Reset di Dark Mode */
+.btn-reset {
+  border: 2px solid rgba(94, 234, 212, 0.4);
+  background: transparent;
+  color: #5eead4;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+
+.btn-reset:hover {
+  background: rgba(56, 189, 248, 0.08);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+}
+
+/* === 🌤️ Light Mode Button Styling (Violet Edition) === */
+.light .btn-toggle {
+  border: 2px solid rgba(155, 92, 255, 0.6);
+  background: transparent;
+  color: #7b2ff7;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+  padding: 6px 18px;
+}
+
+.light .btn-toggle:hover {
+  background: rgba(155, 92, 255, 0.08);
+  box-shadow: 0 0 10px rgba(155, 92, 255, 0.2);
+}
+
+.light .btn-toggle.active {
+  background: linear-gradient(135deg, #9b5cff, #7b2ff7);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 0 12px rgba(155, 92, 255, 0.4);
+}
+
+/* Tombol Reset di Light Mode */
+.light .btn-reset {
+  border: 2px solid rgba(155, 92, 255, 0.4);
+  background: transparent;
+  color: #7b2ff7;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+
+.light .btn-reset:hover {
+  background: rgba(155, 92, 255, 0.08);
+  box-shadow: 0 0 8px rgba(155, 92, 255, 0.3);
+}
+
+
+
 
 /* Light mode special button style */
 .light .btn {
